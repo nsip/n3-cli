@@ -15,31 +15,39 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
 
+	"github.com/nsip/n3-transport/n3config"
 	"github.com/spf13/cobra"
 )
 
 // initCmd represents the init command
 var initCmd = &cobra.Command{
-	Use:   "init",
+	Use:   "init [config-directory]",
 	Short: "initialises an N3 node",
-	Long:  `Creates local user identity, starts services etc.`,
+	Long: `Creates local user identity for service interactions and sets default server/port
+	connection details for nats, liftbridge, grpc etc. servers.
+	All details are stored in [current working directory]/config/n3config.toml
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("init called")
+		// fmt.Println("init called")
+		createNodeIdentity(args)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(initCmd)
+}
 
-	// Here you will define your flags and configuration settings.
+//
+// generates a new config file with default connection params for
+// n3 servers, and pub/priv keypair for this node
+//
+func createNodeIdentity(args []string) {
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// initCmd.PersistentFlags().String("foo", "", "A help for foo")
+	err := n3config.CreateBaseConfig()
+	if err != nil {
+		log.Fatalln("init failed, cannot create base config:", err)
+	}
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// initCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
